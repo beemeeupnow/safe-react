@@ -6,6 +6,7 @@ import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { LoadingContainer } from 'src/components/LoaderContainer'
 import { lastViewedSafe } from 'src/logic/currentSession/store/selectors'
 import {
+  generateSafeRoute,
   LOAD_SPECIFIC_SAFE_ROUTE,
   OPEN_SAFE_ROUTE,
   ADDRESSED_ROUTE,
@@ -15,7 +16,10 @@ import {
   getNetworkRootRoutes,
   extractSafeAddress,
   HOME_ROUTE,
+  SAFE_ROUTES,
+  GENERIC_APPS_ROUTE,
 } from './routes'
+import { getShortName } from 'src/config'
 import { setChainId } from 'src/logic/config/utils'
 import { setChainIdFromUrl } from 'src/utils/history'
 import { usePageTracking } from 'src/utils/googleTagManager'
@@ -29,7 +33,7 @@ const SafeContainer = React.lazy(() => import('./safe/container'))
 const Routes = (): React.ReactElement => {
   const location = useLocation()
   const { pathname } = location
-  const defaultSafe = useSelector(lastViewedSafe)
+  const lastSafe = useSelector(lastViewedSafe)
 
   // Google Tag Manager page tracking
   usePageTracking()
@@ -72,7 +76,7 @@ const Routes = (): React.ReactElement => {
         exact
         path={ROOT_ROUTE}
         render={() => {
-          if (defaultSafe === null) {
+          if (lastSafe === null) {
             return (
               <LoadingContainer>
                 <Loader size="md" />
@@ -80,11 +84,31 @@ const Routes = (): React.ReactElement => {
             )
           }
 
-          if (defaultSafe) {
-            return <Redirect to={HOME_ROUTE} />
+          if (lastSafe) {
+            const redirectPath = generateSafeRoute(SAFE_ROUTES.ASSETS_BALANCES, {
+              shortName: getShortName(),
+              safeAddress: lastSafe,
+            })
+            return <Redirect to={`${redirectPath}${location.search}`} />
           }
 
           return <Redirect to={WELCOME_ROUTE} />
+        }}
+      />
+
+      {/* Redirect /app/apps?appUrl=https://... to that app within the current Safe */}
+      <Route
+        exact
+        path={GENERIC_APPS_ROUTE}
+        render={() => {
+          if (!lastSafe) {
+            return <Redirect to={WELCOME_ROUTE} />
+          }
+          const redirectPath = generateSafeRoute(SAFE_ROUTES.APPS, {
+            shortName: getShortName(),
+            safeAddress: lastSafe,
+          })
+          return <Redirect to={`${redirectPath}${location.search}`} />
         }}
       />
 

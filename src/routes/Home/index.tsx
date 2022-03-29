@@ -3,10 +3,9 @@ import styled from 'styled-components'
 import { Breadcrumb, BreadcrumbElement, Menu } from '@gnosis.pm/safe-react-components'
 
 import Page from 'src/components/layout/Page'
-import Row from 'src/components/layout/Row'
 import Col from 'src/components/layout/Col'
 
-import SafeAppCard from 'src/components/Dashboard/SafeApps/Card'
+import SafeApps from 'src/components/Dashboard/SafeApps/Grid'
 
 const Card = styled.div`
   background: #fff;
@@ -14,7 +13,12 @@ const Card = styled.div`
   border-radius: 8px;
   flex: 1;
   max-width: 500px;
-  margin: 10px;
+`
+
+const StyledRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
 `
 
 function Home(): ReactElement {
@@ -30,7 +34,7 @@ function Home(): ReactElement {
         <Col end="sm" sm={6} xs={12} />
       </Menu>
 
-      <Row>
+      <StyledRow>
         <Card>
           <h2>Owned Safes</h2>
         </Card>
@@ -42,17 +46,9 @@ function Home(): ReactElement {
         <Card>
           <h2>Gas Fees</h2>
         </Card>
-      </Row>
+      </StyledRow>
 
-      <h2>Safe dApps</h2>
-      <Row>
-        <SafeAppCard
-          name="Wallet Connect"
-          description="Connect your Safe to any app with Wallet Connect"
-          logoUri="https://apps.gnosis-safe.io/wallet-connect/wallet-connect.svg"
-          appUri="https://apps.gnosis-safe.io/wallet-connect"
-        />
-      </Row>
+      <SafeApps />
     </Page>
   )
 }
